@@ -14,6 +14,11 @@ import java.util.Set;
 
 @Service
 public class WebCrawlerService {
+    private final HtmlProvider provider;
+
+    public WebCrawlerService(HtmlProvider provider) {
+        this.provider = provider;
+    }
 
     public PagesResponse findLinks(String target) {
         if (target == null || target.isEmpty()) {
@@ -32,13 +37,17 @@ public class WebCrawlerService {
         }
         linkList.add(url);
         try {
-            Document document = Jsoup.connect(url).get();
+            String html = provider.getHtml(url);
+            Document document = Jsoup.parse(html);
             Elements links = document.select("a");
             String baseUrl = url.replaceFirst("/+$", "");
 
 
             for (Element link : links) {
                 String href = link.attr("href");
+                if (href.isBlank() || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("javascript:")) {
+                    continue;
+                }
                 String absoluteUrl;
                 if (isAbsolute(href)) {
                     absoluteUrl = href;
