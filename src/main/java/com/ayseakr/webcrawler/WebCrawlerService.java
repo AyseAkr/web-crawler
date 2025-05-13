@@ -16,6 +16,9 @@ import java.util.Set;
 public class WebCrawlerService {
 
     public PagesResponse findLinks(String target) {
+        if (target == null || target.isEmpty()) {
+            return new PagesResponse(target, Set.of());
+        }
         Set<String> linkList = new HashSet<>();
         crawlAllPages(target, linkList);
         return new PagesResponse(target, linkList);
